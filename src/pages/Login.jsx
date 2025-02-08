@@ -7,8 +7,7 @@ import apiClient from "../ApiClient/apiClient";
 import { useRecoilState } from "recoil";
 import { tempUserAtom, userAtom } from "../recoil/userAtom";
 import { toast } from "react-toastify";
-import { jwtDecode } from "jwt-decode";
-
+import token from "../ApiClient/apiClient";
 
 const Login = () => {
   const history = useNavigate();
@@ -19,19 +18,7 @@ const Login = () => {
   const [user, setUser] = useRecoilState(userAtom);
   const [, setTempUser] = useRecoilState(tempUserAtom);
   const [isLoading, setIsLoading] = useState(false);
-
-  // if (!isEmptyObject(user)) {
-  //   if (user.plan === "freeTrial") {
-  //     history("/select-plan");
-  //   } else {
-  //     if (redirectLink) {
-  //       window.location.href = redirectLink;
-  //     } else {
-  //       history("/workspaces");
-  //     }
-  //     // use replace to prevent user from going back to login page// Redirect to /signup
-  //   }
-  // }
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const validateForm = () => {
     const emailOrPhone = loginData.emailOrPhone;
@@ -63,39 +50,23 @@ const Login = () => {
           })
           .then((response) => {
             const { token } = response.data.data;
-            
-            const decodedUser = jwtDecode(token);
-            setUser(decodedUser);
-            // Handle the response as needed, for example:
-            // This function creates visitors and accounts in Pendo
-            // You will need to replace <visitor-id-goes-here> and <account-id-goes-here> with values you use in your app
-            // Please use Strings, Numbers, or Bools for value types.
-            // window.pendo.initialize({
-            //   visitor: {
-            //     id: response.data.user._id,
-            //     email: response.data.user.email, // Recommended if using Pendo Feedback, or NPS Email
-            //     full_name: response.data.user.fullname, // Recommended if using Pendo Feedback
-            //   },
-            //   account: {
-            //     id: response.data.user._id,
-            //   },
-            // });
+            localStorage.setItem("token", token);
+            setIsLoggedIn(true);
             history("/dashboard");
-            setIsLoading(false);
           })
           .catch((error) => {
-           toast.error(
-             error.response?.data?.message ?? "Invalid login credentials",
-             {
-               position: "top-right",
-               autoClose: 5000,
-               hideProgressBar: false,
-               closeOnClick: true,
-               pauseOnHover: true,
-               draggable: true,
-               progress: undefined,
-             }
-           );
+            toast.error(
+              error.response?.data?.message ?? "Invalid login credentials",
+              {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+              }
+            );
 
             setIsLoading(false);
           });
@@ -114,6 +85,25 @@ const Login = () => {
       [id]: value,
     });
   };
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      const fetchData = async () => {
+        const token = localStorage.getItem("token");
+        try {
+          const response = await apiClient.get("/v1/users/userdetails", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          setUser(response.data.data);
+        } catch (error) {
+          console.error("Error fetching user details:", error);
+        }
+      };
+      fetchData();
+    }
+  }, [isLoggedIn]);
 
   return (
     <AuthScreen>

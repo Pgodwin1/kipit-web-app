@@ -21,6 +21,11 @@ import Investment from "./pages/Investment";
 import { ToastContainer } from "react-toastify";
 import ChangePassword from "./pages/ChangePassword";
 import PersonalDetails from "./pages/PersonalDetails";
+import CreateInvestment from "./pages/CreateInvestment";
+import Viewinvestment from "./components/ViewInvestment";
+import Withdraw from "./components/Withdraw";
+import ViewSavings from "./components/ViewSavings";
+import AddMoney from "./components/AddMoney";
 // axios.defaults.baseURL = process.env.REACT_APP_DEV_API_BASE_URL;
 
 function App() {
@@ -66,13 +71,43 @@ function App() {
           <Route
             path="/change-password"
             element={
-              isAuthenticated ? <ChangePassword /> : <Navigate to="/change-password" />
+              isAuthenticated ? <ChangePassword /> : <Navigate to="/login" />
             }
           />
           <Route
             path="/personal-details"
             element={
-              isAuthenticated ? <PersonalDetails /> : <Navigate to="/personal-details" />
+              isAuthenticated ? <PersonalDetails /> : <Navigate to="/login" />
+            }
+          />
+          <Route
+            path="/create-investment"
+            element={
+              isAuthenticated ? <CreateInvestment /> : <Navigate to="/login" />
+            }
+          />
+          <Route
+            path="/investmentdetail/:id"
+            element={
+              isAuthenticated ? <Viewinvestment /> : <Navigate to="/login" />
+            }
+          />
+          <Route
+            path="/withdraw"
+            element={
+              isAuthenticated ? <Withdraw /> : <Navigate to="/login" />
+            }
+          />
+          <Route
+            path="/savings/:id"
+            element={
+              isAuthenticated ? <ViewSavings /> : <Navigate to="/login" />
+            }
+          />
+          <Route
+            path="/addmoney"
+            element={
+              isAuthenticated ? <AddMoney /> : <Navigate to="/login" />
             }
           />
         </Routes>

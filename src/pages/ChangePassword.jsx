@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import FormInput from "../components/FormInput";
 import Spinner from "../components/Spinner/Spinner";
+import { toast } from "react-toastify";
+import apiClient from "../ApiClient/apiClient";
 
 const ChangePassword = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [changePassword, setChangePassword] = useState({
     oldPassword: "",
     newPassword: "",
-    confirmPassword: "",
+    confirmNewPassword: "",
   });
 
   const handleChange = (e) => {
@@ -19,20 +21,71 @@ const ChangePassword = () => {
     });
   };
 
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+
+    if (
+      !changePassword.oldPassword ||
+      !changePassword.newPassword ||
+      !changePassword.confirmNewPassword
+    ) {
+      toast.error("Please fill in all fields.", { autoClose: 3000 });
+      return;
+    }
+
+    if (changePassword.newPassword !== changePassword.confirmNewPassword) {
+      toast.error("Passwords do not match.", { autoClose: 3000 });
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await apiClient.post(
+        "/v1/auth/changepassword",
+        {
+          oldPassword: changePassword.oldPassword,
+          newPassword: changePassword.newPassword,
+          confirmPassword: changePassword.confirmNewPassword,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.statusCode === 200) {
+        toast.success("Password changed successfully!", { autoClose: 3000 });
+        setChangePassword({
+          password: "",
+          newPassword: "",
+          confirmNewPassword: "",
+        });
+      }
+    } catch (error) {
+      toast.error("An error occurred. Please try again.", { autoClose: 3000 });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <div className="bg-gray-100 min-h-screen p-3">
+    <div className="bg-gray-100 min-h-screen p-3 max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl mx-auto">
       <div className="flex mb-6">
         <h1 className="text-lg font-semibold">Change Password</h1>
       </div>
-      <form className="flex flex-col gap-2 sm:gap-2">
+      <form
+        className="flex flex-col gap-2 sm:gap-2"
+        onSubmit={handleChangePassword}
+      >
         <FormInput
           label="Old Password"
           id="oldPassword"
           type="password"
           placeholder="Enter your old password"
           autoComplete="old-password"
+          onChange={handleChange}
           hint={
-            changePassword.password && changePassword.password.length < 8
+            changePassword.oldPassword && changePassword.oldPassword.length < 8
               ? "Must be at least 8 characters"
               : ""
           }
@@ -46,7 +99,7 @@ const ChangePassword = () => {
           autoComplete="current-password"
           onChange={handleChange}
           hint={
-            changePassword.password && changePassword.password.length < 8
+            changePassword.newPassword && changePassword.newPassword.length < 8
               ? "Must be at least 8 characters"
               : ""
           }
@@ -55,18 +108,20 @@ const ChangePassword = () => {
 
         <FormInput
           label="Confirm Password"
-          id="confirmPassword"
+          id="confirmNewPassword"
           type="password"
-          placeholder="confirm password"
-          autoComplete="confirm-password"
+          placeholder="confirm new password"
+          autoComplete="new-password"
           onChange={handleChange}
           hint={
-            changePassword.confirmPassword &&
-            changePassword.password !== changePassword.confirmPassword
+            changePassword.confirmNewPassword &&
+            changePassword.newPassword !== changePassword.confirmNewPassword
               ? "Must match chosen password"
               : ""
           }
-          error={changePassword.password !== changePassword.confirmPassword}
+          error={
+            changePassword.newPassword !== changePassword.confirmNewPassword
+          }
           required
         />
 
@@ -74,6 +129,7 @@ const ChangePassword = () => {
           <button
             className="w-full bg-[#101c4e] text-white py-2 rounded-md sm:h-11 text-sm"
             type="submit"
+            disabled={isLoading}
           >
             {isLoading ? (
               <div className="spinner">

@@ -66,7 +66,6 @@ const Register = () => {
         const { confirmPassword, ...data } = signUpData;
         try {
           const response = await apiClient.post("/v1/auth/signup", data);
-          console.log("res", response)
 
           if (response.status === 201) {
             setUser(response.data.user);
@@ -114,6 +113,7 @@ const Register = () => {
         [id]: value,
       });
     };
+    
   return (
     <AuthScreen>
       <div className="flex flex-col gap-4 sm:mx-28 sm:w-[360px]">

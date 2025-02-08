@@ -2,8 +2,16 @@ import React, { useState } from "react";
 import FooterNavigation from "../../components/FooterNavigation";
 import HamburgerMenu from "../../components/HamburgerMenu";
 import { FaCopy } from "react-icons/fa";
+import { useRecoilState } from "recoil";
+import { userAtom } from "../../recoil/userAtom";
+import Withdraw from "../../components/Withdraw";
+import { useNavigate } from "react-router-dom";
 
 export default function SavingsDashboard() {
+  const navigate = useNavigate();
+  const [user] = useRecoilState(userAtom);
+  const [isLoading, setIsLoading] = useState(false);
+  const [withdraw, setWithdraw] = useState(false);
   const [copied, setCopied] = useState(false);
   const handleCopy = () => {
     navigator.clipboard.writeText(accountDetails.accountNumber);
@@ -12,7 +20,7 @@ export default function SavingsDashboard() {
   };
 
   const accountDetails = {
-    name: "Clinton John",
+    name: `${user?.firstName}  ${user?.lastName}`,
     accountNumber: "0123456789",
   };
 
@@ -37,18 +45,23 @@ export default function SavingsDashboard() {
   const portfolioData = [
     {
       name: "Your total savings portfolio",
-      amount: "N100,000",
+      amount: "100,000",
     },
   ];
 
+  const handleWithdraw = () => {
+    console.log("clicked", withdraw);
+    navigate("/withdraw");
+  };
+
   return (
-    <div className="bg-gray-100 min-h-screen p-3">
+    <div className="bg-gray-100 min-h-screen p-3 max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl mx-auto">
       {/* Header Section */}
       <div className="flex items-center justify-between mb-6">
         <HamburgerMenu />
         <div className="flex items-center space-x-4">
           <span className="text-gray-800 text-lg font-semibold">
-            Hello, Lotanna.
+            Hello, {user?.firstName}
           </span>
           <button className="relative text-gray-800">
             <i className="fas fa-bell"></i>
@@ -65,12 +78,12 @@ export default function SavingsDashboard() {
               key={index}
               className="flex-shrink-0 w-[93%] bg-gradient-to-r bg-[#101c4e] p-2 text-white rounded-lg shadow-md"
             >
-              <h3 className="text-sm mb-2 text-white font-semibold">
+              <h3 className="text-sm mb-2 text-white font-semibold text-left">
                 {portfolio.name}
               </h3>
               <div className="flex items-center justify-between gap-2">
                 <p className="text-2xl text-white font-bold my-2">
-                  {portfolio.amount}
+                  ₦{portfolio.amount}
                 </p>
                 <button className="bg-white text-xs text-blue-700 px-2 py-2 rounded-lg font-semibold">
                   Save More
@@ -79,7 +92,7 @@ export default function SavingsDashboard() {
             </div>
           ))}
           <div className="flex-shrink-0 w-[93%] bg-gradient-to-r bg-[#101c4e] p-2 text-white rounded-lg shadow-md">
-            <h3 className="text-sm mb-2 text-white font-semibold">
+            <h3 className="text-sm mb-2 text-white font-semibold text-left">
               {accountDetails.name}
             </h3>
             <div className="flex items-center justify-between gap-2">
@@ -104,11 +117,17 @@ export default function SavingsDashboard() {
         </div>
       </div>
 
-      <div className="flex-shrink-0 w-full mb-4 bg-gradient-to-r bg-[#101c4e] p-2 text-white rounded-lg shadow-md">
-        <h3 className="text-sm text-center text-white font-semibold">
+      <div className="flex-shrink-0 w-full mb-4 bg-[#101c4e] p-2 text-white rounded-lg shadow-md">
+        <button
+          type="button"
+          className="text-sm text-center text-white font-semibold cursor-pointer"
+          onClick={handleWithdraw}
+        >
           Withdraw
-        </h3>
+        </button>
       </div>
+
+      {withdraw && <Withdraw isLoading={isLoading} />}
 
       {/* Saving Plans Section */}
       <div className="mb-6">
@@ -129,7 +148,7 @@ export default function SavingsDashboard() {
                   {plan.name[0]}
                 </span>
               </div> */}
-              <div className="-mt-20 ml-4">
+              <div className="-mt-20 ml-4 text-left">
                 <h3 className="font-semibold text-white">{plan.name}</h3>
                 <p className="text-sm text-grey">{plan.returnRate}</p>
               </div>
@@ -140,7 +159,7 @@ export default function SavingsDashboard() {
 
       {/* Savings Guide Section */}
       <div className="mb-20">
-        <h2 className="text-lg font-bold mb-4">Savings Guide</h2>
+        <h2 className="text-lg font-bold mb-4 text-left">Savings Guide</h2>
         <div className="bg-white rounded-lg p-4 shadow-md mb-1.5">
           <h3 className="font-semibold text-gray-800">Basic type of savings</h3>
           <p className="text-gray-600 text-sm mt-2">

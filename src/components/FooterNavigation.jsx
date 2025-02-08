@@ -6,7 +6,7 @@ const FooterNavigation = () => {
   const location = useLocation();
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg flex justify-around py-3">
+    <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg flex justify-around py-3  max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl mx-auto">
       <button
         className={`${
           location.pathname === "/dashboard" ? "text-blue-600" : "text-gray-400"
